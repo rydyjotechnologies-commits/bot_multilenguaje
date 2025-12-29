@@ -9,6 +9,7 @@
         .msg { margin: 10px 0; }
         .user { font-weight: bold; }
         .bot { color: green; }
+        #estado { color: red; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -20,37 +21,55 @@
     <br><br>
 
     <button onclick="enviarTexto()">Enviar</button>
-    <button onclick="hablar()">🎤 Hablar</button>
+    <button onclick="iniciarMicrofono()">🎤 Hablar</button>
+
+    <div id="estado"></div>
 </div>
 
 <script>
-/* ========= ENVIAR TEXTO ========= */
+let recognition;
+
+/* ========= TEXTO ========= */
 function enviarTexto() {
     const texto = document.getElementById("texto").value;
     if (!texto) return;
     enviar(texto);
 }
 
-/* ========= HABLAR ========= */
-function hablar() {
+/* ========= MICRÓFONO ========= */
+function iniciarMicrofono() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-        alert("Tu navegador no soporta micrófono");
+        alert("Tu navegador NO soporta reconocimiento de voz");
         return;
     }
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = "es-ES"; // funciona para todos
+    recognition = new SpeechRecognition();
+    recognition.lang = "en-US"; // FUNCIONA PARA TODOS LOS IDIOMAS
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    document.getElementById("estado").innerText = "🎤 Escuchando... habla ahora";
+
     recognition.start();
 
     recognition.onresult = function(event) {
         const texto = event.results[0][0].transcript;
+        document.getElementById("estado").innerText = "";
         document.getElementById("texto").value = texto;
         enviar(texto);
     };
+
+    recognition.onerror = function(e) {
+        document.getElementById("estado").innerText = "❌ Error de micrófono";
+    };
+
+    recognition.onend = function() {
+        document.getElementById("estado").innerText = "";
+    };
 }
 
-/* ========= ENVIAR AL BACKEND ========= */
+/* ========= ENVIAR ========= */
 function enviar(texto) {
     document.getElementById("mensajes").innerHTML +=
         `<div class="msg user">Tú: ${texto}</div>`;
@@ -64,6 +83,11 @@ function enviar(texto) {
     .then(data => {
         document.getElementById("mensajes").innerHTML +=
             `<div class="msg bot">Bot: ${data.respuesta}</div>`;
+
+        // 🔊 AUDIO DEL BOT (YA FUNCIONA)
+        let voz = new SpeechSynthesisUtterance(data.respuesta);
+        speechSynthesis.cancel();
+        speechSynthesis.speak(voz);
     });
 
     document.getElementById("texto").value = "";
