@@ -5,7 +5,13 @@
     <title>Chat Multilingüe</title>
     <style>
         body { font-family: Arial; background:#f4f4f4; }
-        #chat { width: 400px; margin: 50px auto; background: white; padding: 20px; }
+        #chat {
+            width: 400px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
         .msg { margin: 10px 0; }
         .user { font-weight: bold; }
         .bot { color: green; }
@@ -15,13 +21,14 @@
 
 <div id="chat">
     <div id="mensajes"></div>
+
     <input id="texto" placeholder="Escribe aquí..." />
     <button onclick="enviar()">Enviar</button>
 </div>
 
 <script>
 function enviar() {
-    let texto = document.getElementById("texto").value;
+    const texto = document.getElementById("texto").value;
     if (!texto) return;
 
     document.getElementById("mensajes").innerHTML +=
@@ -36,6 +43,11 @@ function enviar() {
     .then(data => {
         document.getElementById("mensajes").innerHTML +=
             `<div class="msg bot">Bot: ${data.respuesta}</div>`;
+
+        // 🔊 HABLAR (AQUÍ SÍ FUNCIONA)
+        const voz = new SpeechSynthesisUtterance(data.respuesta);
+        voz.lang = "es-ES"; // funciona igual aunque el texto sea otro idioma
+        window.speechSynthesis.speak(voz);
     });
 
     document.getElementById("texto").value = "";
