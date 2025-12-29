@@ -1,33 +1,37 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Chat Multilenguaje</title>
-</head>
-<body>
-    <h2>Chat Multilenguaje</h2>
+<script>
+    async function enviar() {
+        const mensaje = document.getElementById("mensaje").value;
 
-    <input type="text" id="mensaje" placeholder="Escribe aquí">
-    <button onclick="enviar()">Enviar</button>
+        const res = await fetch("/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ mensaje })
+        });
 
-    <p><strong>Respuesta:</strong></p>
-    <p id="respuesta"></p>
+        const data = await res.json();
+        const texto = data.respuesta;
 
-    <script>
-        async function enviar() {
-            const mensaje = document.getElementById("mensaje").value;
+        document.getElementById("respuesta").innerText = texto;
 
-            const res = await fetch("/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ mensaje: mensaje })
-            });
+        // 🔊 HABLAR EL TEXTO
+        hablar(texto);
+    }
 
-            const data = await res.json();
-            document.getElementById("respuesta").innerText = data.respuesta;
-        }
-    </script>
-</body>
-</html>
+    function hablar(texto) {
+        const voz = new SpeechSynthesisUtterance(texto);
+        voz.lang = detectarIdioma(texto);
+        voz.rate = 1;
+        voz.pitch = 1;
+        speechSynthesis.speak(voz);
+    }
+
+    function detectarIdioma(texto) {
+        if (/^[a-zA-Z]/.test(texto)) return "en-US";
+        if (texto.includes("¿") || texto.includes("ñ")) return "es-ES";
+        if (texto.includes("ç") || texto.includes("é")) return "fr-FR";
+        if (texto.includes("ão")) return "pt-BR";
+        return "es-ES";
+    }
+</script>
