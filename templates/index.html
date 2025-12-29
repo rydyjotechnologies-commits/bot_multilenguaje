@@ -5,13 +5,7 @@
     <title>Chat Multilingüe</title>
     <style>
         body { font-family: Arial; background:#f4f4f4; }
-        #chat {
-            width: 400px;
-            margin: 50px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-        }
+        #chat { width: 400px; margin: 50px auto; background: white; padding: 20px; }
         .msg { margin: 10px 0; }
         .user { font-weight: bold; }
         .bot { color: green; }
@@ -21,14 +15,13 @@
 
 <div id="chat">
     <div id="mensajes"></div>
-
     <input id="texto" placeholder="Escribe aquí..." />
-    <button onclick="enviar()">Enviar</button>
+    <button id="btn">Enviar</button>
 </div>
 
 <script>
-function enviar() {
-    const texto = document.getElementById("texto").value;
+document.getElementById("btn").addEventListener("click", function () {
+    let texto = document.getElementById("texto").value;
     if (!texto) return;
 
     document.getElementById("mensajes").innerHTML +=
@@ -37,21 +30,21 @@ function enviar() {
     fetch("/chat", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({mensaje: texto})
+        body: JSON.stringify({ mensaje: texto })
     })
     .then(res => res.json())
     .then(data => {
         document.getElementById("mensajes").innerHTML +=
             `<div class="msg bot">Bot: ${data.respuesta}</div>`;
 
-        // 🔊 HABLAR (AQUÍ SÍ FUNCIONA)
-        const voz = new SpeechSynthesisUtterance(data.respuesta);
-        voz.lang = "es-ES"; // funciona igual aunque el texto sea otro idioma
-        window.speechSynthesis.speak(voz);
+        // 🔊 AUDIO (SOLO AQUÍ, DESPUÉS DEL CLICK)
+        let utterance = new SpeechSynthesisUtterance(data.respuesta);
+        speechSynthesis.cancel(); // evita bloqueos
+        speechSynthesis.speak(utterance);
     });
 
     document.getElementById("texto").value = "";
-}
+});
 </script>
 
 </body>
