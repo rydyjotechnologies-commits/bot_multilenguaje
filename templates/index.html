@@ -44,7 +44,7 @@ function enviar() {
     document.getElementById("texto").value = "";
 }
 
-// 🎤 VOZ A TEXTO (MULTIIDIOMA)
+// 🎤 VOZ → TEXTO (ESTABLE)
 function hablar() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -54,14 +54,16 @@ function hablar() {
     }
 
     const reconocimiento = new SpeechRecognition();
-    reconocimiento.lang = "auto"; // el navegador detecta
     reconocimiento.start();
 
     reconocimiento.onresult = function(event) {
-        const texto = event.results[0][0].transcript;
-        document.getElementById("texto").value = texto;
+        document.getElementById("texto").value =
+            event.results[0][0].transcript;
     };
 }
+</script>
+</body>
+</html>
 </script>
 </body>
 </html>
