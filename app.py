@@ -32,3 +32,6 @@ def chat():
     mensaje = data.get("mensaje")
     respuesta = responder(mensaje)
     return jsonify({"respuesta": respuesta})
+
+if __name__ == "__main__":
+    app.run(debug=True)
