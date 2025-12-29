@@ -1,42 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Chat Multilingüe</title>
-    <style>
-        body { font-family: Arial; background:#f4f4f4; }
-        #chat { width: 400px; margin: 50px auto; background: white; padding: 20px; }
-        .msg { margin: 10px 0; }
-        .user { font-weight: bold; }
-        .bot { color: green; }
-    </style>
+    <title>Chat Multilenguaje</title>
 </head>
 <body>
-<div id="chat">
-    <div id="mensajes"></div>
-    <input id="texto" placeholder="Escribe aquí..." />
+    <h2>Chat Multilenguaje</h2>
+
+    <input type="text" id="mensaje" placeholder="Escribe aquí">
     <button onclick="enviar()">Enviar</button>
-</div>
 
-<script>
-function enviar() {
-    let texto = document.getElementById("texto").value;
-    document.getElementById("mensajes").innerHTML += 
-        `<div class="msg user">Tú: ${texto}</div>`;
+    <p><strong>Respuesta:</strong></p>
+    <p id="respuesta"></p>
 
-    fetch("/chat", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({mensaje: texto})
-    })
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById("mensajes").innerHTML += 
-            `<div class="msg bot">Bot: ${data.respuesta}</div>`;
-    });
+    <script>
+        async function enviar() {
+            const mensaje = document.getElementById("mensaje").value;
 
-    document.getElementById("texto").value = "";
-}
-</script>
+            const res = await fetch("/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ mensaje: mensaje })
+            });
+
+            const data = await res.json();
+            document.getElementById("respuesta").innerText = data.respuesta;
+        }
+    </script>
 </body>
 </html>
