@@ -1,113 +1,44 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>Chat Multilingüe</title>
     <style>
-        body {
-            font-family: Arial;
-            background: #f4f4f4;
-        }
-        #chat {
-            width: 400px;
-            margin: 50px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-        }
-        .msg {
-            margin: 10px 0;
-        }
-        .user {
-            font-weight: bold;
-        }
-        .bot {
-            color: green;
-        }
-        button {
-            margin-top: 5px;
-        }
+        body { font-family: Arial; background:#f4f4f4; }
+        #chat { width: 400px; margin: 50px auto; background: white; padding: 20px; }
+        .msg { margin: 10px 0; }
+        .user { font-weight: bold; }
+        .bot { color: green; }
     </style>
 </head>
 <body>
 
 <div id="chat">
     <div id="mensajes"></div>
-
-    <input id="texto" placeholder="Escribe o habla..." />
-    <br><br>
-
-    <button onclick="enviarTexto()">Enviar</button>
-    <button onclick="hablar()">🎤 Hablar</button>
+    <input id="texto" placeholder="Escribe aquí..." />
+    <button onclick="enviar()">Enviar</button>
 </div>
 
 <script>
-/* ========= ENVIAR TEXTO ========= */
-function enviarTexto() {
-    const texto = document.getElementById("texto").value;
+function enviar() {
+    let texto = document.getElementById("texto").value;
     if (!texto) return;
 
-    mostrarUsuario(texto);
-    enviarAlBot(texto);
-    document.getElementById("texto").value = "";
-}
+    document.getElementById("mensajes").innerHTML +=
+        `<div class="msg user">Tú: ${texto}</div>`;
 
-/* ========= MICRÓFONO ========= */
-function hablar() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-        alert("Tu navegador no soporta micrófono");
-        return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = "auto";
-    recognition.start();
-
-    recognition.onresult = function(event) {
-        const texto = event.results[0][0].transcript;
-        mostrarUsuario(texto);
-        enviarAlBot(texto);
-    };
-}
-
-/* ========= ENVIAR AL BOT ========= */
-function enviarAlBot(texto) {
     fetch("/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mensaje: texto })
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({mensaje: texto})
     })
     .then(res => res.json())
     .then(data => {
-        mostrarBot(data.respuesta);
-        hablarBot(data.respuesta);
+        document.getElementById("mensajes").innerHTML +=
+            `<div class="msg bot">Bot: ${data.respuesta}</div>`;
     });
-}
 
-/* ========= MOSTRAR MENSAJES ========= */
-function mostrarUsuario(texto) {
-    document.getElementById("mensajes").innerHTML +=
-        `<div class="msg user">Tú: ${texto}</div>`;
-}
-
-function mostrarBot(texto) {
-    document.getElementById("mensajes").innerHTML +=
-        `<div class="msg bot">Bot: ${texto}</div>`;
-}
-
-/* ========= VOZ DEL BOT ========= */
-function hablarBot(texto) {
-    const voz = new SpeechSynthesisUtterance(texto);
-    voz.lang = detectarIdioma(texto);
-    speechSynthesis.speak(voz);
-}
-
-function detectarIdioma(texto) {
-    if (texto.match(/[áéíóúñ¿¡]/i)) return "es-ES";
-    if (texto.match(/[ãõç]/i)) return "pt-PT";
-    if (texto.match(/[àâçéèêëîïôûùüÿœ]/i)) return "fr-FR";
-    return "en-US";
+    document.getElementById("texto").value = "";
 }
 </script>
 
