@@ -9,7 +9,7 @@
         .msg { margin: 10px 0; }
         .user { font-weight: bold; }
         .bot { color: green; }
-        #estado { color: red; font-size: 12px; }
+        #estado { font-size: 12px; color: red; }
     </style>
 </head>
 <body>
@@ -21,7 +21,7 @@
     <br><br>
 
     <button onclick="enviarTexto()">Enviar</button>
-    <button onclick="iniciarMicrofono()">🎤 Hablar</button>
+    <button onclick="hablar()">🎤 Hablar</button>
 
     <div id="estado"></div>
 </div>
@@ -37,35 +37,33 @@ function enviarTexto() {
 }
 
 /* ========= MICRÓFONO ========= */
-function iniciarMicrofono() {
+function hablar() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-        alert("Tu navegador NO soporta reconocimiento de voz");
+        alert("Tu navegador no soporta micrófono");
         return;
     }
 
     recognition = new SpeechRecognition();
-    recognition.lang = "en-US"; // FUNCIONA PARA TODOS LOS IDIOMAS
+    recognition.lang = "en-US";
     recognition.continuous = false;
     recognition.interimResults = false;
 
-    document.getElementById("estado").innerText = "🎤 Escuchando... habla ahora";
+    document.getElementById("estado").innerText = "🎤 Escuchando...";
 
     recognition.start();
 
     recognition.onresult = function(event) {
         const texto = event.results[0][0].transcript;
+        recognition.stop(); // 🔥 CLAVE: cerrar micrófono
         document.getElementById("estado").innerText = "";
         document.getElementById("texto").value = texto;
         enviar(texto);
     };
 
-    recognition.onerror = function(e) {
+    recognition.onerror = function() {
+        recognition.stop();
         document.getElementById("estado").innerText = "❌ Error de micrófono";
-    };
-
-    recognition.onend = function() {
-        document.getElementById("estado").innerText = "";
     };
 }
 
@@ -84,7 +82,7 @@ function enviar(texto) {
         document.getElementById("mensajes").innerHTML +=
             `<div class="msg bot">Bot: ${data.respuesta}</div>`;
 
-        // 🔊 AUDIO DEL BOT (YA FUNCIONA)
+        // 🔊 AHORA SÍ PUEDE HABLAR
         let voz = new SpeechSynthesisUtterance(data.respuesta);
         speechSynthesis.cancel();
         speechSynthesis.speak(voz);
