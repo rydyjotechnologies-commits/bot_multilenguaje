@@ -15,15 +15,43 @@
 
 <div id="chat">
     <div id="mensajes"></div>
-    <input id="texto" placeholder="Escribe aquí..." />
-    <button id="btn">Enviar</button>
+
+    <input id="texto" placeholder="Escribe o habla..." />
+    <br><br>
+
+    <button onclick="enviarTexto()">Enviar</button>
+    <button onclick="hablar()">🎤 Hablar</button>
 </div>
 
 <script>
-document.getElementById("btn").addEventListener("click", function () {
-    let texto = document.getElementById("texto").value;
+/* ========= ENVIAR TEXTO ========= */
+function enviarTexto() {
+    const texto = document.getElementById("texto").value;
     if (!texto) return;
+    enviar(texto);
+}
 
+/* ========= HABLAR ========= */
+function hablar() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("Tu navegador no soporta micrófono");
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "es-ES"; // funciona para todos
+    recognition.start();
+
+    recognition.onresult = function(event) {
+        const texto = event.results[0][0].transcript;
+        document.getElementById("texto").value = texto;
+        enviar(texto);
+    };
+}
+
+/* ========= ENVIAR AL BACKEND ========= */
+function enviar(texto) {
     document.getElementById("mensajes").innerHTML +=
         `<div class="msg user">Tú: ${texto}</div>`;
 
@@ -36,15 +64,10 @@ document.getElementById("btn").addEventListener("click", function () {
     .then(data => {
         document.getElementById("mensajes").innerHTML +=
             `<div class="msg bot">Bot: ${data.respuesta}</div>`;
-
-        // 🔊 AUDIO (SOLO AQUÍ, DESPUÉS DEL CLICK)
-        let utterance = new SpeechSynthesisUtterance(data.respuesta);
-        speechSynthesis.cancel(); // evita bloqueos
-        speechSynthesis.speak(utterance);
     });
 
     document.getElementById("texto").value = "";
-});
+}
 </script>
 
 </body>
