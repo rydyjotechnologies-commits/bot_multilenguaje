@@ -14,13 +14,19 @@
 <body>
 <div id="chat">
     <div id="mensajes"></div>
-    <input id="texto" placeholder="Escribe aquí..." />
+
+    <input id="texto" placeholder="Escribe o habla..." />
+    <br><br>
+
     <button onclick="enviar()">Enviar</button>
+    <button onclick="hablar()">🎤 Hablar</button>
 </div>
 
 <script>
 function enviar() {
     let texto = document.getElementById("texto").value;
+    if (!texto) return;
+
     document.getElementById("mensajes").innerHTML += 
         `<div class="msg user">Tú: ${texto}</div>`;
 
@@ -36,6 +42,25 @@ function enviar() {
     });
 
     document.getElementById("texto").value = "";
+}
+
+// 🎤 VOZ A TEXTO (MULTIIDIOMA)
+function hablar() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        alert("Tu navegador no soporta reconocimiento de voz");
+        return;
+    }
+
+    const reconocimiento = new SpeechRecognition();
+    reconocimiento.lang = "auto"; // el navegador detecta
+    reconocimiento.start();
+
+    reconocimiento.onresult = function(event) {
+        const texto = event.results[0][0].transcript;
+        document.getElementById("texto").value = texto;
+    };
 }
 </script>
 </body>
