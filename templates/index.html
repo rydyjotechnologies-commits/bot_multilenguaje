@@ -1,37 +1,44 @@
 <script>
-    async function enviar() {
-        const mensaje = document.getElementById("mensaje").value;
+let audioPermitido = false;
+let ultimoTexto = "";
 
-        const res = await fetch("/chat", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ mensaje })
-        });
+function activarAudio() {
+    audioPermitido = true;
+    alert("🔊 Audio activado. El bot ya puede hablar.");
+}
 
-        const data = await res.json();
-        const texto = data.respuesta;
+async function enviar() {
+    const mensaje = document.getElementById("mensaje").value;
 
-        document.getElementById("respuesta").innerText = texto;
+    const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mensaje })
+    });
 
-        // 🔊 HABLAR EL TEXTO
-        hablar(texto);
+    const data = await res.json();
+    ultimoTexto = data.respuesta;
+
+    document.getElementById("respuesta").innerText = ultimoTexto;
+
+    if (audioPermitido) {
+        hablar(ultimoTexto);
     }
+}
 
-    function hablar(texto) {
-        const voz = new SpeechSynthesisUtterance(texto);
-        voz.lang = detectarIdioma(texto);
-        voz.rate = 1;
-        voz.pitch = 1;
-        speechSynthesis.speak(voz);
-    }
+function hablar(texto) {
+    const voz = new SpeechSynthesisUtterance(texto);
+    voz.lang = detectarIdioma(texto);
+    voz.rate = 1;
+    voz.pitch = 1;
+    speechSynthesis.speak(voz);
+}
 
-    function detectarIdioma(texto) {
-        if (/^[a-zA-Z]/.test(texto)) return "en-US";
-        if (texto.includes("¿") || texto.includes("ñ")) return "es-ES";
-        if (texto.includes("ç") || texto.includes("é")) return "fr-FR";
-        if (texto.includes("ão")) return "pt-BR";
-        return "es-ES";
-    }
+function detectarIdioma(texto) {
+    if (texto.match(/[¿¡ñáéíóú]/i)) return "es-ES";
+    if (texto.match(/[a-z]/i)) return "en-US";
+    if (texto.match(/[çéèà]/i)) return "fr-FR";
+    if (texto.match(/[ãõ]/i)) return "pt-BR";
+    return "es-ES";
+}
 </script>
