@@ -2,27 +2,18 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Bot Multilenguaje</title>
+    <title>Chat Multilenguaje</title>
 </head>
 <body>
 
-<h2>🤖 Bot Multilenguaje con Voz</h2>
+<h2>Chat Multilenguaje</h2>
 
-<input type="text" id="mensaje" placeholder="Escribe aquí..." style="width:300px;">
+<input id="mensaje" placeholder="Escribe aquí">
 <button onclick="enviar()">Enviar</button>
-<button onclick="activarAudio()">🔊 Activar voz</button>
 
-<p><strong>Respuesta:</strong></p>
-<div id="respuesta"></div>
+<p id="respuesta"></p>
 
 <script>
-let audioPermitido = false;
-
-function activarAudio() {
-    audioPermitido = true;
-    alert("🔊 Voz activada");
-}
-
 async function enviar() {
     const mensaje = document.getElementById("mensaje").value;
 
@@ -34,12 +25,6 @@ async function enviar() {
 
     const data = await res.json();
     document.getElementById("respuesta").innerText = data.respuesta;
-
-    if (audioPermitido) {
-        const voz = new SpeechSynthesisUtterance(data.respuesta);
-        voz.lang = "es-ES";
-        speechSynthesis.speak(voz);
-    }
 }
 </script>
 
